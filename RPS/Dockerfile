@@ -19,4 +19,7 @@ RUN dotnet publish "RPS.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "RPS.dll"]
+
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet RPS.dll
+
+#ENTRYPOINT ["dotnet", "RPS.dll"]
