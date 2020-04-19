@@ -9,6 +9,8 @@ namespace RPS
     public interface IAuthService
     {
         Task<User> Authenticate(Google.Apis.Auth.GoogleJsonWebSignature.Payload payload);
+
+        Task<List<User>> getAll();
     }
 
     public class AuthService : IAuthService
@@ -17,7 +19,7 @@ namespace RPS
         {
             this.Refresh();
         }
-        private static IList<User> _users = new List<User>();
+        private static List<User> _users = new List<User>();
         public async Task<User> Authenticate(Google.Apis.Auth.GoogleJsonWebSignature.Payload payload)
         {
             await Task.Delay(1);
@@ -52,6 +54,12 @@ namespace RPS
                 _users.Add(new User() { id = Guid.NewGuid(), name = "Test Person2", email = "testperson2@gmail.com" });
                 _users.Add(new User() { id = Guid.NewGuid(), name = "Test Person3", email = "testperson3@gmail.com" });
             }
+        }
+
+        public async Task<List<User>> getAll()
+        {
+            await Task.Delay(1);
+            return _users;
         }
     }
 }

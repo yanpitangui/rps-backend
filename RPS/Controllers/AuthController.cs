@@ -12,37 +12,22 @@ using RPS.Models;
 using System.Diagnostics;
 using RPS.Helpers;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 
 namespace RPS.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class AuthController : Controller
     {
         private IAuthService _authService;
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<AuthController> _logger;
         private JWTConfig _config;
 
-        public HomeController(ILogger<HomeController> logger, IAuthService authService, IOptions<JWTConfig> config)
+        public AuthController(ILogger<AuthController> logger, IAuthService authService, IOptions<JWTConfig> config)
         {
             _logger = logger;
             this._authService = authService;
             _config = config.Value;
-        }
-
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
         [AllowAnonymous]
@@ -78,6 +63,12 @@ namespace RPS.Controllers
                 BadRequest(ex.Message);
             }
             return BadRequest();
+        }
+
+        [HttpGet("test")]
+        public async Task<List<User>> getAll()
+        {
+            return await _authService.getAll();
         }
     }
 }
