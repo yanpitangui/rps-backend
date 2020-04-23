@@ -8,6 +8,7 @@ using System.Text;
 using RPS.Models;
 using RPS.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using RPS.Hubs;
 
 namespace RPS
 {
@@ -25,8 +26,9 @@ namespace RPS
         {
 
             services.AddCors();
-
+            services.AddApplicationDbContext();
             services.AddControllers();
+            services.AddSignalR();
             services.AddAuthentication((x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -40,10 +42,10 @@ namespace RPS
                     cfg.TokenValidationParameters = new TokenValidationParameters()
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:JwtSecret"])),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["AppSettings:JwtSecret"])),
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidAudience = Configuration["AppSettings:GoogleClientId"],
+                        ValidAudience = Configuration["AppSettings:GoogleClientId"]?.ToString(),
                         ValidIssuer = "RPS_API"
                     };
                 });
@@ -67,11 +69,11 @@ namespace RPS
             app.UseCustomSerilogRequestLogging();
             app.UseRouting();
             app.UseAuthentication();
-            app.UseAuthorization();
             app.UseApiDoc();
             app.UseEndpoints(x =>
             {
                 x.MapControllers();
+                x.MapHub<ChatHub>("/chat");
             });
 
 
@@ -86,6 +88,7 @@ namespace RPS
                     x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
                 });
             app.UseResponseCompression();
+
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using RPS.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using RPS.Context;
+using RPS.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,51 +17,37 @@ namespace RPS
 
     public class AuthService : IAuthService
     {
-        public AuthService()
+        ApplicationDbContext _dbContext;
+        public AuthService(ApplicationDbContext dbContext)
         {
-            this.Refresh();
+            _dbContext = dbContext;
         }
-        private static List<User> _users = new List<User>();
         public async Task<User> Authenticate(Google.Apis.Auth.GoogleJsonWebSignature.Payload payload)
         {
-            await Task.Delay(1);
-            return this.FindUserOrAdd(payload);
+            return await this.FindUserOrAdd(payload);
         }
 
-        private User FindUserOrAdd(Google.Apis.Auth.GoogleJsonWebSignature.Payload payload)
+        private async Task<User> FindUserOrAdd(Google.Apis.Auth.GoogleJsonWebSignature.Payload payload)
         {
-            var u = _users.Where(x => x.email == payload.Email).FirstOrDefault();
+            var u = await _dbContext.Users.Where(x => x.Email == payload.Email).FirstOrDefaultAsync();
+
             if (u == null)
             {
                 u = new User()
                 {
-                    id = Guid.NewGuid(),
-                    name = payload.Name,
-                    email = payload.Email,
-                    oauthSubject = payload.Subject,
-                    oauthIssuer = payload.Issuer
+                    Id = Guid.NewGuid(),
+                    Nickname = payload.Name,
+                    Email = payload.Email
                 };
-                _users.Add(u);
+                _dbContext.Users.Add(u);
+                await _dbContext.SaveChangesAsync();
             }
             return u;
         }
 
-
-
-        private void Refresh()
-        {
-            if (_users.Count == 0)
-            {
-                _users.Add(new User() { id = Guid.NewGuid(), name = "Test Person1", email = "testperson1@gmail.com" });
-                _users.Add(new User() { id = Guid.NewGuid(), name = "Test Person2", email = "testperson2@gmail.com" });
-                _users.Add(new User() { id = Guid.NewGuid(), name = "Test Person3", email = "testperson3@gmail.com" });
-            }
-        }
-
         public async Task<List<User>> getAll()
         {
-            await Task.Delay(1);
-            return _users;
+            return await _dbContext.Users.AsNoTracking().ToListAsync();
         }
     }
 }

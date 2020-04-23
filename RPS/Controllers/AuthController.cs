@@ -31,6 +31,7 @@ namespace RPS.Controllers
         }
 
         [AllowAnonymous]
+        [ProducesResponseType(typeof(ApiResponse<JWTToken>), 200)]
         [HttpPost("google")]
         public async Task<IActionResult> Google([FromBody]UserView userView)
         {
@@ -38,10 +39,11 @@ namespace RPS.Controllers
             {
                 //SimpleLogger.Log("userView = " + userView.tokenId);
                 var payload = await GoogleJsonWebSignature.ValidateAsync(userView.tokenId, new GoogleJsonWebSignature.ValidationSettings() { Audience = new[] { _config.GoogleClientId } });
+                if (!payload.EmailVerified) return StatusCode(403, new ApiResponse(false, "Forbidden"));
                 var user = await _authService.Authenticate(payload);
                 var claims = new[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, Security.Encrypt(_config.JwtEmailEncryption,user.email)),
+                    new Claim(JwtRegisteredClaimNames.Sub, Security.Encrypt(_config.JwtEmailEncryption,user.Email)),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 };
 
@@ -53,16 +55,16 @@ namespace RPS.Controllers
                   claims,
                   expires: DateTime.Now.AddMinutes(60),
                   signingCredentials: creds);
-                return Ok(new
+                return Ok(new ApiResponse<JWTToken>(true, string.Empty, new JWTToken
                 {
-                    token = new JwtSecurityTokenHandler().WriteToken(token)
-                });
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    ExpDate = token.ValidTo
+                }));
             }
             catch (Exception ex)
             {
-                BadRequest(ex.Message);
+                return BadRequest(new ApiResponse(false, ex.Message));
             }
-            return BadRequest();
         }
 
         [HttpGet("test")]
