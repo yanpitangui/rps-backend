@@ -16,7 +16,9 @@ using System.Collections.Generic;
 
 namespace RPS.Controllers
 {
+
     [Authorize]
+    [ApiController]
     public class AuthController : Controller
     {
         private IAuthService _authService;

@@ -14,12 +14,12 @@ namespace RPS.Extensions
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1",
-                    new Microsoft.OpenApi.Models.OpenApiInfo
+                    new OpenApiInfo
                     {
                         Title = "RPS.BACKEND",
                         Version = "v1",
                         Description = "Backend RPS",
-                        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+                        Contact = new OpenApiContact
                         {
                             Name = "Yan Pitangui",
                             Url = new System.Uri("https://github.com/yanpitangui")
@@ -27,16 +27,26 @@ namespace RPS.Extensions
                     });
                 c.DescribeAllParametersInCamelCase();
                 c.OrderActionsBy(x => x.RelativePath);
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                var schema = new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme."
-                });
+                    Description = "JWT Authorization header using the Bearer scheme.",
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                };
+                c.AddSecurityDefinition("Bearer", schema);
+
+
+                var securityRequirement = new OpenApiSecurityRequirement();
+                securityRequirement.Add(schema, new[] { "Bearer" });
+                c.AddSecurityRequirement(securityRequirement);
 
                 var xmlfile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlfile);

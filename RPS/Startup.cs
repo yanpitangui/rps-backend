@@ -68,8 +68,10 @@ namespace RPS
             }
             app.UseCustomSerilogRequestLogging();
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseApiDoc();
+            app.UseAuthorization();
             app.UseEndpoints(x =>
             {
                 x.MapControllers();
@@ -78,7 +80,6 @@ namespace RPS
 
 
             app.UseHttpsRedirection();
-
 
 
 
