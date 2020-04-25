@@ -47,6 +47,7 @@ namespace RPS.Controllers
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, Security.Encrypt(_config.JwtEmailEncryption,user.Email)),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.Email, payload.Email)
                 };
 
                 var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config.JwtSecret));

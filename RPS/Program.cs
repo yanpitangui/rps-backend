@@ -38,6 +38,7 @@ namespace RPS
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    //webBuilder.UseUrls("http://192.168.1.10:5001", "http://localhost:5001");
                 });
     }
 }
