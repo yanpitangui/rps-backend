@@ -117,6 +117,7 @@ namespace RPS
             {
                 x.MapControllers();
                 x.MapHub<ChatHub>("/hubs/chat");
+                x.MapHub<GameHub>("/hubs/game");
             });
 
 
