@@ -3,11 +3,11 @@ using System.Security.Claims;
 
 namespace RPS.Helpers
 {
-    public class EmailBasedUserIdProvider : IUserIdProvider
+    public class NicknameBasedUserIdProvider : IUserIdProvider
     {
         public virtual string GetUserId(HubConnectionContext connection)
         {
-            return connection.User?.FindFirst(ClaimTypes.Email)?.Value;
+            return connection.User?.FindFirst(ClaimTypes.GivenName)?.Value;
         }
     }
 

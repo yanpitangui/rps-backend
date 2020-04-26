@@ -84,7 +84,7 @@ namespace RPS
                     };
                 });
 
-            services.AddSingleton<IUserIdProvider, EmailBasedUserIdProvider>();
+            services.AddSingleton<IUserIdProvider, NicknameBasedUserIdProvider>();
             services.Configure<JWTConfig>(Configuration.GetSection("AppSettings"));
             services.AddSingleton<NicknameGenerator>();
             services.AddScoped<IUserService, UserService>();
