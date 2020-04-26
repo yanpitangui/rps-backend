@@ -1,17 +1,19 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using RPS.Models;
 using RPS.Extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using RPS.Hubs;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
+using RPS.Generators;
 using RPS.Helpers;
+using RPS.Hubs;
+using RPS.Models;
+using RPS.Services;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace RPS
 {
@@ -36,7 +38,12 @@ namespace RPS
                     .AllowAnyHeader());
             });
             services.AddApplicationDbContext();
-            services.AddControllers();
+            services.AddHttpContextAccessor();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                });
             services.AddSignalR();
             services.AddAuthentication((x =>
             {
@@ -67,7 +74,7 @@ namespace RPS
                             // If the request is for our hub...
                             var path = context.HttpContext.Request.Path;
                             if (!string.IsNullOrEmpty(accessToken) &&
-                                (path.StartsWithSegments("/chat")))
+                                (path.StartsWithSegments("/hubs")))
                             {
                                 // Read the token out of the query string
                                 context.Token = accessToken;
@@ -79,6 +86,8 @@ namespace RPS
 
             services.AddSingleton<IUserIdProvider, EmailBasedUserIdProvider>();
             services.Configure<JWTConfig>(Configuration.GetSection("AppSettings"));
+            services.AddSingleton<NicknameGenerator>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddApiDoc();
             services.AddCompression();
@@ -89,7 +98,8 @@ namespace RPS
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();            }
+                app.UseDeveloperExceptionPage();
+            }
             else
             {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
@@ -106,7 +116,7 @@ namespace RPS
             app.UseEndpoints(x =>
             {
                 x.MapControllers();
-                x.MapHub<ChatHub>("/chat");
+                x.MapHub<ChatHub>("/hubs/chat");
             });
 
 

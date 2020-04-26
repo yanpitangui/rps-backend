@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace RPS.Models
+﻿namespace RPS.Models
 {
     public class User
     {
-        public System.Guid Id { get; set; }
+        public System.Guid? Id { get; set; }
         public string Email { get; set; }
 
-        public int TotalMatches { get; set; } = 0;
+        public int? TotalMatches { get; set; }
 
         public string Nickname { get; set; }
     }

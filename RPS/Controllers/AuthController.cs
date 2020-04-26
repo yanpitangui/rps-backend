@@ -1,34 +1,34 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
-using Google.Apis.Auth;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using RPS.Models;
-using System.Diagnostics;
-using RPS.Helpers;
 using Microsoft.Extensions.Options;
-using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
+using RPS.Helpers;
+using RPS.Models;
+using RPS.Services;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace RPS.Controllers
 {
 
     [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class AuthController : Controller
     {
-        private IAuthService _authService;
+        private readonly IAuthService _authService;
         private readonly ILogger<AuthController> _logger;
-        private JWTConfig _config;
+        private readonly JWTConfig _config;
 
         public AuthController(ILogger<AuthController> logger, IAuthService authService, IOptions<JWTConfig> config)
         {
             _logger = logger;
-            this._authService = authService;
+            _authService = authService;
             _config = config.Value;
         }
 
@@ -39,7 +39,6 @@ namespace RPS.Controllers
         {
             try
             {
-                //SimpleLogger.Log("userView = " + userView.tokenId);
                 var payload = await GoogleJsonWebSignature.ValidateAsync(userView.tokenId, new GoogleJsonWebSignature.ValidationSettings() { Audience = new[] { _config.GoogleClientId } });
                 if (!payload.EmailVerified) return StatusCode(403, new ApiResponse(false, "Forbidden"));
                 var user = await _authService.Authenticate(payload);
@@ -68,12 +67,6 @@ namespace RPS.Controllers
             {
                 return BadRequest(new ApiResponse(false, ex.Message));
             }
-        }
-
-        [HttpGet("test")]
-        public async Task<List<User>> getAll()
-        {
-            return await _authService.getAll();
         }
     }
 }
