@@ -23,7 +23,7 @@ namespace RPS.Controllers
         }
 
         [ProducesResponseType(typeof(ApiResponse<User>), 200)]
-        [HttpGet("getInfo")]
+        [HttpGet("info")]
         public async Task<IActionResult> getInfo()
         {
             var userEmail = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value;

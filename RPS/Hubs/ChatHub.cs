@@ -10,7 +10,7 @@ namespace RPS.Hubs
     {
         public async Task SendMessage(string message)
         {
-            await Clients.Others.SendAsync("ReceiveMessage", message, DateTime.Now);
+            await Clients.Others.SendAsync("ReceiveMessage", message, DateTime.Now, Context.UserIdentifier);
         }
     }
 }
