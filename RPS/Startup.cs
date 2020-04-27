@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using RPS.Context;
 using RPS.Extensions;
 using RPS.Generators;
 using RPS.Helpers;
@@ -37,7 +39,12 @@ namespace RPS
                     .AllowAnyMethod()
                     .AllowAnyHeader());
             });
-            services.AddApplicationDbContext();
+
+            services.AddDbContextPool<ApplicationDbContext>(o =>
+            {
+                o.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                //o.UseInMemoryDatabase(databaseName: "rpsdb");
+            });
             services.AddHttpContextAccessor();
             services.AddControllers()
                 .AddJsonOptions(options =>
@@ -87,6 +94,7 @@ namespace RPS
             services.AddSingleton<IUserIdProvider, NicknameBasedUserIdProvider>();
             services.Configure<JWTConfig>(Configuration.GetSection("AppSettings"));
             services.AddSingleton<NicknameGenerator>();
+            services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddApiDoc();

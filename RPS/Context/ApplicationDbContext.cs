@@ -8,6 +8,7 @@ namespace RPS.Context
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<ChatMessage> Messages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             if (modelBuilder is null)
@@ -16,6 +17,9 @@ namespace RPS.Context
             }
 
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<ChatMessage>()
+                .Property(p => p.Id)
+                .ValueGeneratedOnAdd();
 
         }
 

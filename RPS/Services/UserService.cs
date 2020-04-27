@@ -12,6 +12,7 @@ namespace RPS.Services
     {
         Task<User> FindUserOrAdd(Google.Apis.Auth.GoogleJsonWebSignature.Payload payload);
         Task<string> GenerateUserName();
+        Task<User> FindByEmail(string email);
     }
 
     public class UserService : IUserService
@@ -40,6 +41,11 @@ namespace RPS.Services
                 await _dbContext.SaveChangesAsync();
             }
             return u;
+        }
+
+        public async Task<User> FindByEmail(string email)
+        {
+            return await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
 
         public async Task<string> GenerateUserName()

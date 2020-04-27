@@ -4,5 +4,10 @@
         <name>RPS</name>
     </assembly>
     <members>
+        <member name="T:RPS.Generators.NicknameGenerator">
+            <summary>
+            Source of files: https://github.com/dariusk/corpora
+            </summary>
+        </member>
     </members>
 </doc>
