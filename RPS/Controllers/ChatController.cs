@@ -19,7 +19,7 @@ namespace RPS.Controllers
             this.chatService = chatService;
         }
 
-        [HttpGet("latestMessages")]
+        [HttpGet("latest-messages")]
         [ProducesResponseType(typeof(ApiResponse<List<ChatMessage>>), 200)]
         public async Task<IActionResult> GetLatestMessages()
         {
