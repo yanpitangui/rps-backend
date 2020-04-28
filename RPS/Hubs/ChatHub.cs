@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RPS.Hubs
 {
-    [Authorize]
+    //[Authorize]
     public class ChatHub : Hub
     {
         private readonly IChatService chatService;

@@ -1,4 +1,5 @@
-﻿using Google.Apis.Auth;
+﻿
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -44,8 +45,7 @@ namespace RPS.Controllers
                 var user = await _authService.Authenticate(payload);
                 var claims = new[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Sub, Security.Encrypt(_config.JwtEmailEncryption,user.Email)),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                    new Claim(JwtRegisteredClaimNames.NameId, user?.Id?.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, payload.Email),
                     new Claim(JwtRegisteredClaimNames.GivenName, user.Nickname)
                 };
