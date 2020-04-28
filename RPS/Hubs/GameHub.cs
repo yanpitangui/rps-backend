@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace RPS.Hubs
 {
-    //[Authorize]
+    [Authorize]
     public class GameHub : Hub
     {
-        private static readonly ConcurrentQueue<string> gameQueue = new ConcurrentQueue<string>();
-        private static readonly ConcurrentBag<object> groups = new ConcurrentBag<object>();
+        private static readonly ConcurrentQueue<GameUser> gameQueue = new ConcurrentQueue<GameUser>();
+        private static readonly ConcurrentBag<GameGroup> groups = new ConcurrentBag<GameGroup>();
         private readonly ILogger<GameHub> _logger;
 
         public GameHub(ILogger<GameHub> logger)
@@ -21,30 +21,30 @@ namespace RPS.Hubs
         }
         public async Task EnterQueue()
         {
-            var userId = Context.UserIdentifier;//Context.ConnectionId;
-            _logger.LogInformation("User {@UserId} entered queue to matchmaking.", userId);
+            var user = new GameUser { ConnectionId = Context.ConnectionId, Nickname = Context.UserIdentifier };
+            _logger.LogInformation("User {@User} entered queue to matchmaking.", user);
             if (!gameQueue.IsEmpty)
             {
-                if (!gameQueue.Any(x => x == userId))
+                if (!gameQueue.Any(x => x == user))
                 {
                     gameQueue.TryDequeue(out var user2);
-                    if (userId != user2)
+                    if (user != user2)
                     {
-                        _logger.LogInformation("User {@UserId} has found {@UserMatched} to make a match.", userId, user2);
-                        var groupId = new Guid().ToString();
-                        await Groups.AddToGroupAsync(userId, groupId);
-                        await Groups.AddToGroupAsync(user2, groupId);
-                        await Clients.Group(groupId).SendAsync("Matched", $"User #{userId} has been matched with user #{user2}");
-                        groups.Add(new GameGroup { GroupId = groupId, Users = { userId, user2 } });
-                        _logger.LogInformation("Group {@GroupId} created do match Users {@UserId} and {@UserMatched}.", groupId, userId, user2);
-
+                        _logger.LogInformation("User {@User} has found {@UserMatched} to make a match.", user, user2);
+                        var groupId = Guid.NewGuid().ToString();
+                        await Groups.AddToGroupAsync(user.ConnectionId, groupId);
+                        await Groups.AddToGroupAsync(user2.ConnectionId, groupId);
+                        await Clients.Group(groupId).SendAsync("Matched", $"User #{user.Nickname} has been matched with user #{user2.Nickname}");
+                        _logger.LogInformation("Group {@GroupId} created to match Users {@User} and {@UserMatched}.", groupId, user, user2);
+                        _logger.LogInformation("Groups {@Groups}", groups);
+                        groups.Add(new GameGroup { GroupId = groupId, Users = { user, user2 } });
                     }
                 }
             }
             else
             {
-                gameQueue.Enqueue(userId);
+                gameQueue.Enqueue(user);
             }
-        }        
+        }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace RPS.Hubs
 {
-    //[Authorize]
+    [Authorize]
     public class ChatHub : Hub
     {
         private readonly IChatService chatService;
@@ -17,7 +17,7 @@ namespace RPS.Hubs
         public async Task SendMessage(string message)
         {
             var sender = Context.UserIdentifier;
-            await chatService.SaveMessage(sender, message);
+            _ = chatService.SaveMessage(sender, message);
             await Clients.Others.SendAsync("ReceiveMessage", message, DateTime.Now, sender);
         }
     }

@@ -6,7 +6,7 @@ namespace RPS.Hubs
     {
         public string GroupId { get; set; }
 
-        public List<string> Users { get; set; }
+        public List<GameUser> Users { get; set; }
 
     }
 }
