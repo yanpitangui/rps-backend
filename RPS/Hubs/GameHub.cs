@@ -37,7 +37,7 @@ namespace RPS.Hubs
                         await Clients.Group(groupId).SendAsync("Matched", $"User #{user.Nickname} has been matched with user #{user2.Nickname}");
                         _logger.LogInformation("Group {@GroupId} created to match Users {@User} and {@UserMatched}.", groupId, user, user2);
                         _logger.LogInformation("Groups {@Groups}", groups);
-                        groups.Add(new GameGroup { GroupId = groupId, Users = { user, user2 } });
+                        //groups.Add(new GameGroup { GroupId = groupId, Users = { user, user2 } });
                     }
                 }
             }
