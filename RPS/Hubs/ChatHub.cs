@@ -17,8 +17,8 @@ namespace RPS.Hubs
         public async Task SendMessage(string message)
         {
             var sender = Context.UserIdentifier;
-            _ = chatService.SaveMessage(sender, message);
             await Clients.Others.SendAsync("ReceiveMessage", message, DateTime.Now, sender);
+            await chatService.SaveMessage(sender, message);
         }
     }
 }

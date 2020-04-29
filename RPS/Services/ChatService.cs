@@ -30,7 +30,7 @@ namespace RPS.Services
 
         public async Task<List<ChatMessage>> GetChatMessages()
         {
-            return await _dbContext.Messages.OrderByDescending(x=> x.Id).Take(200).ToListAsync();
+            return await _dbContext.Messages.OrderByDescending(x=> x.Id).Take(200).OrderBy(x=>x.Id).ToListAsync();
         }
     }
 }

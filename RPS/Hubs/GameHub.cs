@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace RPS.Hubs
@@ -21,14 +22,14 @@ namespace RPS.Hubs
         }
         public async Task EnterQueue()
         {
-            var user = new GameUser { ConnectionId = Context.ConnectionId, Nickname = Context.UserIdentifier };
+            GameUser user = new GameUser { ConnectionId = Context.ConnectionId, Nickname = Context.UserIdentifier, Id = new Guid(Context.User.FindFirst(ClaimTypes.NameIdentifier).Value)};
             _logger.LogInformation("User {@User} entered queue to matchmaking.", user);
             if (!gameQueue.IsEmpty)
             {
-                if (!gameQueue.Any(x => x == user))
+                if (!gameQueue.Any(x => x.Id == user.Id))
                 {
                     gameQueue.TryDequeue(out var user2);
-                    if (user != user2)
+                    if (user.Id != user2.Id)
                     {
                         _logger.LogInformation("User {@User} has found {@UserMatched} to make a match.", user, user2);
                         var groupId = Guid.NewGuid().ToString();
@@ -37,7 +38,7 @@ namespace RPS.Hubs
                         await Clients.Group(groupId).SendAsync("Matched", $"User #{user.Nickname} has been matched with user #{user2.Nickname}");
                         _logger.LogInformation("Group {@GroupId} created to match Users {@User} and {@UserMatched}.", groupId, user, user2);
                         _logger.LogInformation("Groups {@Groups}", groups);
-                        //groups.Add(new GameGroup { GroupId = groupId, Users = { user, user2 } });
+                        groups.Add(new GameGroup { GroupId = groupId, Users = new System.Collections.Generic.List<GameUser>{ user, user2 } });
                     }
                 }
             }
