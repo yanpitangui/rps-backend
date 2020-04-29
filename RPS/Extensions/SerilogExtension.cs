@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using Serilog;
 using Serilog.Core;
+using Serilog.Events;
 using System;
 
 namespace RPS.Extensions
@@ -13,7 +14,12 @@ namespace RPS.Extensions
         {
             var configuration = LoadAppConfiguration();
             return new LoggerConfiguration()
-                .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
+#if DEBUG
+                 .MinimumLevel.Debug()
+#endif
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                // Filter out ASP.NET Core infrastructre logs that are Information and below
+                .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
                 .ReadFrom.Configuration(configuration)
                 .Destructure.AsScalar<JObject>()
                 .Destructure.AsScalar<JArray>()
@@ -24,14 +30,7 @@ namespace RPS.Extensions
 
         public static IApplicationBuilder UseCustomSerilogRequestLogging(this IApplicationBuilder app)
         {
-            app.UseSerilogRequestLogging(c =>
-            {
-                c.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-                {
-                    //Add your useful information here
-                };
-            });
-
+            app.UseSerilogRequestLogging();
             return app;
         }
 
