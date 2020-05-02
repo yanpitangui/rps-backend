@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using RPS.BackgroundServices;
 using RPS.Context;
 using RPS.Extensions;
 using RPS.Generators;
@@ -101,6 +102,7 @@ namespace RPS
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddApiDoc();
+            //services.AddHostedService<GameService>();
             services.AddCompression();
         }
 

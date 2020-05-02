@@ -70,6 +70,7 @@ namespace RPS.Hubs
         {
             GameUser user = new GameUser { ConnectionId = Context.ConnectionId, Nickname = Context.UserIdentifier, Id = new Guid(Context.User.FindFirst(ClaimTypes.NameIdentifier).Value) };
             RemoveFromQueue(user.Id);
+            Context.Abort(); 
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
